@@ -1,0 +1,18 @@
+#summary SPARQL Tips
+
+= Getting things with label X =
+{{{
+SELECT * WHERE { ?s rdfs:label "X"@en }
+}}}
+= Getting things whose label contains X =
+{{{
+SELECT * WHERE { ?s rdfs:label ?o. ?o bif:contains "X" }
+}}}
+= Counting things whose label contains X =
+{{{
+SELECT count(*) WHERE { ?s rdfs:label ?o. ?o bif:contains "X" }
+}}}
+= Getting the types T of a thing X =
+{{{
+SELECT ?t WHERE { X rdf:type ?t}
+}}}
