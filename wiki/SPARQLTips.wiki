@@ -14,7 +14,7 @@ SELECT count(*) WHERE { ?s rdfs:label ?o. ?o bif:contains "X" }
 }}}
 = Get the types T of a thing X =
 {{{
-SELECT ?t WHERE { X rdf:type ?t}
+SELECT ?T WHERE { X rdf:type ?t}
 }}}
 = Count the number of direct links between X and Y=
 {{{
