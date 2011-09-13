@@ -1,0 +1,5 @@
+#summary Stanford NER
+
+= Calling the tool =
+
+Have a look at [http://code.google.com/p/clueweb09/source/browse/trunk/Clueweb09/src/sis/pitt/edu/stanford/ner/NERDemo.java this]
