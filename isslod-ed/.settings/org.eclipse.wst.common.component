@@ -3,7 +3,7 @@
     <wb-module deploy-name="isslod-ed-web">
         <wb-resource deploy-path="/" source-path="/WebContent"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <property name="context-root" value="isslod-ed-web"/>
         <property name="java-output-path" value="/isslod-ed-web/build/classes"/>
+        <property name="context-root" value="isslod-ed"/>
     </wb-module>
 </project-modules>
