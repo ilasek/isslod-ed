@@ -9,5 +9,18 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/arq-2.8.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/icu4j-3.4.4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/iri-0.7.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/jena-2.6.2-tests.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/jena-2.6.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/junit-4.5.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/lucene-core-2.3.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/slf4j-api-1.5.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/slf4j-log4j12-1.5.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/wstx-asl-3.2.9.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="output" path="WebContent/WEB-INF/classes"/>
 </classpath>
