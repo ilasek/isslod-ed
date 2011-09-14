@@ -37,7 +37,7 @@ public class EdServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		InputStream is = config.getServletContext().getResourceAsStream("WEB-INF/ner-eng-ie.crf-4-conll.ser.gz");
+		InputStream is = config.getServletContext().getResourceAsStream("classifiers/ner-eng-ie.crf-4-conll.ser.gz");
 		try {
 			textFacade = new DefaultTextProcessingFacade(new GZIPInputStream(is));
 		} catch (IOException e) {
