@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Entity Disambiguation</title>
+        <link rel="stylesheet" href="css/style.css" media="screen">
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6.1/dijit/themes/claro/claro.css" media="screen">
+        <!-- load dojo and provide config via data attribute -->
+        <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.6.1/dojo/dojo.xd.js" data-dojo-config="isDebug: true,parseOnLoad: true">
+        </script>
+        <script>
+            dojo.require("dijit.layout.BorderContainer");
+            dojo.require("dijit.layout.ContentPane");
+            dojo.require("dijit.form.Textarea");
+            dojo.require("dijit.form.Button");
+            
+            function getText(){
+                //The form data is sent to the given URL using a POST method, 
+                //rather than a GET by using the dojo.xhrPost function.
+                dojo.xhrGet({
+                    url: "edservlet/getresults",
+                    load: function(response, ioArgs){
+                        dojo.byId("result").innerHTML = response;
+                        
+                        //Dojo recommends that you always return(response); to propagate 
+                        //the response to other callback handlers. Otherwise, the error 
+                        //callbacks may be called in the success case.
+                        return response;
+                    },
+                    error: function(response, ioArgs){
+                        dojo.byId("result").innerHTML = "An error occurred, with response: " + response;
+                        return response;
+                    },
+                    
+                    //Setting the 'form' parameter to the ID of a form on the page
+                    //submits that form to the specified URL
+                    form: "myForm"
+                });
+            }
+        </script>
+    </head>
+    <body class="claro">
+        <div id="appLayout" class="demoLayout" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="design: 'headline'">
+            <div class="centerPanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'center'">
+                <div>
+                    <h4>Input Text</h4>
+                    <form id="myForm">
+                        <textarea id="text-input" name="input" dojoType="dijit.form.Textarea" style="width:600px;min-height:150px;"></textarea>
+						<br />
+                        <button dojoType="dijit.form.Button" type="button">
+                            Submit
+                            <script type="dojo/method" event="onClick" args="evt">
+                                // Do something:
+                                getText();
+                            </script>
+                        </button>
+                    </form>
+					<h4>Result</h4>
+                    <div id="result">
+                    </div>
+                </div>
+            </div>
+            <div class="edgePanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'top'">
+                <h1>ISSLOD Entity Disambiguation "Student Work Project"</h1>
+            </div>
+            <div id="leftCol" class="edgePanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'left', splitter: true">
+                Sidebar content (left)
+            </div>
+        </div>
+    </body>
+</html>
