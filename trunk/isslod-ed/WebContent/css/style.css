@@ -41,6 +41,34 @@ html, body {
     overflow: hidden;
     padding: 0;
 }
+a {
+    /*color: #ddd;*/
+    color: #1874BD;
+}
+
+td.score {
+    width: 150px;
+}
+
+td.label {
+    width: 250px;
+}
+
+td.uri {
+    width: 500px;
+}
+
+th {
+    text-align: left;
+}
+
+tr:hover {
+    background: #eee;
+}
+
+table {
+    border-spacing: 0;
+}
 
 #appLayout {
     height: 100%;
