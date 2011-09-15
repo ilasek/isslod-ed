@@ -84,9 +84,11 @@ public class EdServlet extends HttpServlet {
 					.getDbpEntitiesByLabel(curEntity.getName());
 			List<RankedEntity> rankedList = rank(dbpEntities, input);
 
-			out.println(String.format("Disambiguation of '%s':",
+			out.println(String.format("<p>Disambiguation of '%s':</p>",
 					curEntity.getName()));
-			out.println(rankedList);
+			out.print("<p>");
+			out.print(rankedList);
+			out.println("</p>");
 		}
 		out.close();
 	}
