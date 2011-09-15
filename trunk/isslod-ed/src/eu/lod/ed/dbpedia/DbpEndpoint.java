@@ -57,7 +57,7 @@ public class DbpEndpoint {
             if (description == null)
                 entity.setDescription(solution.get("label").toString());
             else
-                entity.setDescription(description + solution.get("label").toString());
+                entity.setDescription(description + " " + solution.get("label").toString());
         }
         
         return entity;
