@@ -6,10 +6,10 @@ public class Test {
     
     public static void main(String[] args) {
         DbpEndpoint endpoint = new DbpEndpoint("http://live.dbpedia.org/sparql");
-        List<DbpEntity> entities = endpoint.getDbpEntitiesByLabel("Paris Wisconsin");
+        List<DbpEntity> entities = endpoint.getDbpEntitiesByLabel("Paris");
         
         for (DbpEntity entity : entities) {
-            System.out.println(entity.getLabel() + " " + entity.getUri() + " " + entity.getDescription());
+            System.out.println(entity.getUri() + " ###### " + entity.getLabel() + " ###### " + entity.getDescription());
         }
     }
     
