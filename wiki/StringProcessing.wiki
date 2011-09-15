@@ -1,0 +1,5 @@
+#summary Preprocessing for string comparison
+
+= Stop word removal =
+
+[http://www.koders.com/java/fid04763A14AB2F6DCEE22818DDCE301ABBF804C571.aspx Look at this]
