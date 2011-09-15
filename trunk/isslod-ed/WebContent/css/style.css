@@ -47,15 +47,15 @@ a {
 }
 
 td.score {
-    width: 150px;
+    width: 80px;
 }
 
 td.label {
-    width: 250px;
+    width: 150px;
 }
 
 td.uri {
-    width: 500px;
+    width: 600px;
 }
 
 th {
@@ -68,6 +68,15 @@ tr:hover {
 
 table {
     border-spacing: 0;
+}
+
+h4 span {
+    font-size: 150%;
+}
+
+.centIn {
+    width: 900px;
+    margin: auto;
 }
 
 #appLayout {
