@@ -9,6 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.lang3.StringUtils;
+
+import uk.ac.shef.wit.simmetrics.similaritymetrics.JaccardSimilarity;
+
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
@@ -26,6 +30,7 @@ public class DefaultTextProcessingFacade implements TextProcessingFacade {
 
 	private AbstractSequenceClassifier classifier;
 	private PorterStemmer stemmer;
+	private JaccardSimilarity jaccSimilarity = new JaccardSimilarity();
 
 	public DefaultTextProcessingFacade(InputStream classifierStream) {
 		try {
@@ -109,17 +114,36 @@ public class DefaultTextProcessingFacade implements TextProcessingFacade {
 		return result;
 	}
 
+	@Override
+	public double calcSimilarity(List<String> aStems, List<String> bStems) {
+		double result = jaccSimilarity.getSimilarity(
+				StringUtils.join(aStems, ' '), StringUtils.join(bStems, ' '));
+		return result;
+	}
+
 	public static void main(String[] args) {
 		String input = "Carl Edward Sagan (November 9, 1934 – December 20, 1996) "
 				+ "was an American astronomer, astrophysicist, cosmologist, author, science popularizer, "
 				+ "and science communicator in the space and natural sciences.";
+		String other1 = "Carl Sagan (January 9, 1934 – March 20, 1996) "
+				+ "was an American astronomer, astrophysicist, cosmologist, author, science popularizer, "
+				+ "and science communicator in the space and natural sciences.";
+		String other2 = "Harvey Williams Cushing, M.D. (April 8, 1869 - October 7, 1939), was an American "
+				+ "neurosurgeon and a pioneer of brain surgery, and the first to describe Cushing's syndrome.[1] "
+				+ "He is often called the father of modern neurosurgery.";
 		try {
 			InputStream is = new GZIPInputStream(
 					new BufferedInputStream(
 							new FileInputStream(
 									"WebContent/classifiers/ner-eng-ie.crf-4-conll.ser.gz")));
 			DefaultTextProcessingFacade tf = new DefaultTextProcessingFacade(is);
-			System.out.println(tf.listStems(input));
+			/* System.out.println(tf.listStems(input)); */
+			List<String> inputStems = tf.listStems(input);
+			List<String> other1Stems = tf.listStems(other1);
+			List<String> other2Stems = tf.listStems(other2);
+			System.out.println(tf.calcSimilarity(inputStems, other1Stems));
+			System.out.println(tf.calcSimilarity(inputStems, other2Stems));
+			System.out.println(tf.calcSimilarity(other1Stems, other2Stems));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
