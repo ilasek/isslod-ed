@@ -8,4 +8,5 @@ public interface TextProcessingFacade {
 
 	List<StandfordEntity> getEntities(String input);
 
+	List<String> listStems(String input);
 }

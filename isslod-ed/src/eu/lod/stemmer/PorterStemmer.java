@@ -31,8 +31,14 @@
    Release 4
 
  */
-package de.uni_leipzig.gk.preprocessing;
-import java.io.*;
+package eu.lod.stemmer;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 //import edu.stanford.nlp.util.Timing;
 /**
  * PorterStemmer, implementing the Porter Stemming Algorithm
@@ -42,7 +48,7 @@ import java.io.*;
  * by calling one of the various stem(something) methods.
  */
 
-public class PorterStemmer implements StemmerInterface
+public class PorterStemmer
 {
     private static final String SEPARATOR="/";
     private char[] b;
