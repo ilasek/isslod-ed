@@ -84,15 +84,16 @@ public class EdServlet extends HttpServlet {
 					.getDbpEntitiesByLabel(curEntity.getName());
 			List<RankedEntity> rankedList = rank(dbpEntities, input);
 
-			out.println(String.format("<div>Disambiguation of '%s':</div>",
+			out.println(String.format("<h4>Disambiguation of '%s':</h4>",
 					curEntity.getName()));
-			out.print("<ul>");
+			out.print("<table>");
+			out.print("<tr><th>Score</th><th>Label</th><th>URI</th></tr>");
 			for (RankedEntity re : rankedList) {
 				out.println(String.format(
-						"<li>%5.3f : <a target=\"_blank\" href=\"%s\">%s</a></li>", re.getRank(),
-						re.getEntity().getUri(), re.getEntity().getUri()));
+						"<tr><td class=\"score\">%5.3f</td><td class=\"label\">%s</td><td class=\"uri\"><a target=\"_blank\" href=\"%s\">%s</a></td></tr>", re.getRank(),
+						re.getEntity().getLabel(), re.getEntity().getUri(), re.getEntity().getUri()));
 			}
-			out.println("</ul>");
+			out.println("</table>");
 		}
 		out.close();
 	}
