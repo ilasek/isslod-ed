@@ -84,11 +84,15 @@ public class EdServlet extends HttpServlet {
 					.getDbpEntitiesByLabel(curEntity.getName());
 			List<RankedEntity> rankedList = rank(dbpEntities, input);
 
-			out.println(String.format("<p>Disambiguation of '%s':</p>",
+			out.println(String.format("<div>Disambiguation of '%s':</div>",
 					curEntity.getName()));
-			out.print("<p>");
-			out.print(rankedList);
-			out.println("</p>");
+			out.print("<ul>");
+			for (RankedEntity re : rankedList) {
+				out.println(String.format(
+						"<li>%5.3f : <a target=\"_blank\" href=\"%s\">%s</a></li>", re.getRank(),
+						re.getEntity().getUri(), re.getEntity().getUri()));
+			}
+			out.println("</ul>");
 		}
 		out.close();
 	}
@@ -151,5 +155,13 @@ class RankedEntity implements Comparable<RankedEntity> {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 				.append("entityUri", entity.getUri()).append("rank", rank)
 				.toString();
+	}
+
+	public DbpEntity getEntity() {
+		return entity;
+	}
+
+	public double getRank() {
+		return rank;
 	}
 }
