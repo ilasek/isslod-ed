@@ -26,34 +26,63 @@ public class DbpEndpoint {
     }
     
     public List<DbpEntity> getDbpEntitiesByLabel(String label) {
-        List<DbpEntity> entities = new LinkedList<DbpEntity>();
-        String query = "SELECT ?uri ?label ?type WHERE { ?uri rdfs:label ?label. ?label <bif:contains> \"" + label + "\" OPTIONAL {?uri rdf:type ?type} }";
-//        String query = "SELECT ?uri ?label WHERE { ?uri rdfs:label \"" + label + "\" } LIMIT 1";
-        query = addPrefixes(query);
+        String query = "SELECT DISTINCT ?uri WHERE { ?uri rdfs:label \"" + label + "\"@en. ?uri rdfs:label ?label. OPTIONAL {?uri rdf:type ?type} OPTIONAL {?uri rdfs:comment ?description} }";
+        List<DbpEntity> entities = getQueryResult(query);
         System.out.println(query);
-        System.out.println();
-
+        
+        return entities;
+    }
+    
+    private DbpEntity addEntityDetails(DbpEntity entity) {
+        String query = "SELECT * WHERE { <" + entity.getUri() + "> rdfs:label ?label. OPTIONAL {<" + entity.getUri() + "> rdf:type ?type} OPTIONAL {<" + entity.getUri() + "> rdfs:comment ?description} }";
+        
+        query = addPrefixes(query);
         Query sparqlQuery = QueryFactory.create(query);
         
         QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, sparqlQuery);
 
         ResultSet results = qexec.execSelect();
         
-        DbpEntity entity;
-        QuerySolution sol;
+        QuerySolution solution;
+        if (results.hasNext()) {
+            solution = results.nextSolution();
+            return solutionToEntity(solution);
+        }
+        
+        return entity;
+    }
+
+    private List<DbpEntity> getQueryResult(String query) {
+        List<DbpEntity> entities = new LinkedList<DbpEntity>();
+
+        query = addPrefixes(query);
+        Query sparqlQuery = QueryFactory.create(query);
+        
+        QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlEndpoint, sparqlQuery);
+
+        ResultSet results = qexec.execSelect();
+        
+        QuerySolution solution;
         while (results.hasNext()) {
-            sol = results.nextSolution();
-            entity = new DbpEntity();
-            entity.setLabel(sol.get("label").toString());
-            entity.setUri(sol.get("uri").toString());
-            if (sol.get("type") != null)
-                entity.setRdfType(sol.get("type").toString());
-            entities.add(entity);
+            solution = results.nextSolution();
+            entities.add(solutionToEntity(solution));
         }
         
         return entities;
     }
     
-//    private String 
+    private DbpEntity solutionToEntity(QuerySolution solution) {
+        DbpEntity entity = new DbpEntity();
+        if (solution.get("uri") != null)
+            entity.setUri(solution.get("uri").toString());
+        if (solution.get("label") != null)        
+            entity.setLabel(solution.get("label").toString());
+        if (solution.get("type") != null)
+            entity.setRdfType(solution.get("type").toString());
+        if (solution.get("description") != null)
+            entity.setDescription(solution.get("description").toString());
+        
+        return entity;
+    }
 
 }
