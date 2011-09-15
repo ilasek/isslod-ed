@@ -12,7 +12,8 @@ import com.hp.hpl.jena.query.ResultSet;
 
 public class DbpEndpoint {
     private static final String PREFIXES = "PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>\n"
-                                         + "PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n";
+                                         + "PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+                                         + "PREFIX dbpedia-owl:  <http://dbpedia.org/ontology/>\n";
 //                                         + "PREFIX bif:  <bif:contains>\n";
 
     private String sparqlEndpoint;
@@ -26,7 +27,7 @@ public class DbpEndpoint {
     }
     
     public List<DbpEntity> getDbpEntitiesByLabel(String label) {
-        String query = "SELECT DISTINCT ?uri WHERE { ?uri rdfs:label \"" + label + "\"@en. ?uri rdfs:label ?label. OPTIONAL {?uri rdf:type ?type} OPTIONAL {?uri rdfs:comment ?description} }";
+        String query = "SELECT DISTINCT ?uri ?label ?description WHERE { ?uri rdfs:label \"" + label + "\"@en. ?uri rdfs:label ?label. ?uri dbpedia-owl:abstract ?description. FILTER(lang(?description) = \"en\"). }";
         List<DbpEntity> entities = getQueryResult(query);
         System.out.println(query);
         
