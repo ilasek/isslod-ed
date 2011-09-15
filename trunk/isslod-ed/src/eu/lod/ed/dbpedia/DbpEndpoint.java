@@ -27,15 +27,15 @@ public class DbpEndpoint {
     }
     
     public List<DbpEntity> getDbpEntitiesByLabel(String label) {
-        String query = "SELECT DISTINCT ?uri ?label ?description WHERE { ?uri rdfs:label \"" + label + "\"@en. ?uri rdfs:label ?label. ?uri dbpedia-owl:abstract ?description. FILTER(lang(?description) = \"en\"). }";
+        String query = "SELECT DISTINCT ?uri WHERE { ?uri rdfs:label \"" + label + "\"@en. ?uri rdfs:label ?label. }";
         List<DbpEntity> entities = getQueryResult(query);
         System.out.println(query);
         
         return entities;
     }
     
-    private DbpEntity addEntityDetails(DbpEntity entity) {
-        String query = "SELECT * WHERE { <" + entity.getUri() + "> rdfs:label ?label. OPTIONAL {<" + entity.getUri() + "> rdf:type ?type} OPTIONAL {<" + entity.getUri() + "> rdfs:comment ?description} }";
+    private DbpEntity addDescription(DbpEntity entity) {
+        String query = "SELECT ?label WHERE { <" + entity.getUri() + "> rdfs:label ?label. FILTER(lang(?label) = \"en\") }";
         
         query = addPrefixes(query);
         Query sparqlQuery = QueryFactory.create(query);
@@ -45,9 +45,19 @@ public class DbpEndpoint {
         ResultSet results = qexec.execSelect();
         
         QuerySolution solution;
-        if (results.hasNext()) {
+        
+        boolean first = true;
+        while (results.hasNext()) {
             solution = results.nextSolution();
-            return solutionToEntity(solution);
+            if (first) {
+                entity.setLabel(solution.get("label").toString());
+                first = false;
+            }
+            String description = entity.getDescription();
+            if (description == null)
+                entity.setDescription(solution.get("label").toString());
+            else
+                entity.setDescription(description + solution.get("label").toString());
         }
         
         return entity;
@@ -66,7 +76,7 @@ public class DbpEndpoint {
         QuerySolution solution;
         while (results.hasNext()) {
             solution = results.nextSolution();
-            entities.add(solutionToEntity(solution));
+            entities.add(addDescription(solutionToEntity(solution)));
         }
         
         return entities;
