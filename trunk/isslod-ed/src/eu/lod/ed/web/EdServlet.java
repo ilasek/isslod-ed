@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.google.gson.Gson;
 
 import eu.lod.ed.dbpedia.DbpEndpoint;
 import eu.lod.ed.dbpedia.DbpEntity;
@@ -32,6 +35,7 @@ public class EdServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TextProcessingFacade textFacade;
 	private DbpEndpoint dbpEndpoint;
+	private Gson gson;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -44,6 +48,7 @@ public class EdServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		gson = new Gson();
 		InputStream is = config.getServletContext().getResourceAsStream(
 				"classifiers/ner-eng-ie.crf-4-conll.ser.gz");
 		try {
@@ -77,24 +82,21 @@ public class EdServlet extends HttpServlet {
 		response.setContentType("text/html");
 
 		PrintWriter out = response.getWriter();
-
+		HashMap<String, List<RankedEntity>> rankedListMap = new HashMap<String, List<RankedEntity>>();
+		HashMap<String, StandfordEntity> entitiesMap = new HashMap<String, StandfordEntity>();
 		List<StandfordEntity> entities = textFacade.getEntities(input);
+
 		for (StandfordEntity curEntity : entities) {
 			List<DbpEntity> dbpEntities = dbpEndpoint
 					.getDbpEntitiesByLabel(curEntity.getName());
 			List<RankedEntity> rankedList = rank(dbpEntities, input);
-
-			out.println(String.format("<h4>Disambiguation of <span>'%s'</span>:</h4>",
-					curEntity.getName()));
-			out.print("<table>");
-			out.print("<tr><th>Score</th><th>Label</th><th>URI</th></tr>");
-			for (RankedEntity re : rankedList) {
-				out.println(String.format(
-						"<tr><td class=\"score\">%5.3f</td><td class=\"label\">%s</td><td class=\"uri\"><a target=\"_blank\" href=\"%s\">%s</a></td></tr>", re.getRank(),
-						re.getEntity().getLabel(), re.getEntity().getUri(), re.getEntity().getUri()));
-			}
-			out.println("</table>");
+			
+				rankedListMap.put(curEntity.getName(),rankedList);
+				entitiesMap.put(curEntity.getName(), curEntity);
 		}
+
+		out.println("{rankedList:" +  gson.toJson(rankedListMap)+ ",entities:" + gson.toJson(entitiesMap) + "}");
+
 		out.close();
 	}
 
