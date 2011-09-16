@@ -13,27 +13,140 @@
             dojo.require("dijit.layout.ContentPane");
             dojo.require("dijit.form.Textarea");
             dojo.require("dijit.form.Button");
+            dojo.require('dojox.charting.Chart2D');
+            dojo.require('dojox.charting.widget.Chart2D');
+            dojo.require('dojox.charting.themes.PlotKit.blue');
+            dojo.require("dijit.layout.TabContainer");
+            dojo.require("dojox.widget.Standby");
+            function sortByRank(a, b){
+                return b.y - a.y;
+            }
+			function sortByStartPos (a,b){
+				return a.start - b.start;
+			}
             
             function getText(){
-                var node = dojo.byId("result");
-                node.innerHTML = "<h3>Your request is beeing processed...</h3>";
+                basicStandby1.show();
                 
+                
+                chartsNode = dojo.byId("charts");
+                tableNode = dojo.byId("table");
+				annNode = dojo.byId("annotated");
+                chartsNode.innerHTML = "";
+                dojo.style(tableNode, "opacity", "0");
+                dojo.style(chartsNode, "opacity", "0");
+				dojo.style(annNode, "opacity", "0");
                 //The form data is sent to the given URL using a POST method, 
                 //rather than a GET by using the dojo.xhrPost function.
                 dojo.xhrGet({
                     url: "edservlet/getresults",
+                    handleAs: "json",
                     load: function(response, ioArgs){
-                        var node = dojo.byId("result");
-                        dojo.fadeOut({
-                            node: node,
-                            onEnd: function(){
-                                    node.innerHTML = response
-                                    dojo.fadeIn({
-                                            node: node,
-                                            duration: 2000
-                                    }).play()
-                            }
-                        }).play();                        
+                        basicStandby1.hide();
+                        console.dir(response);
+						var rankedList = response.rankedList; 
+                        
+					    /********************** CHARTS ********************************************/
+						for (var name in rankedList) {
+                            var chartData = [];
+                            var labels = [];
+                            dojo.forEach(rankedList[name], function(item, i){
+                                chartData.push({
+                                    x: i,
+                                    y: rankedList[name][i].rank,
+                                    tooltip: "<h4>::: " + Math.round(rankedList[name][i].rank * 100) / 100 + " ::: " + rankedList[name][i].entity.uri + "</h4><iframe src=\"" + rankedList[name][i].entity.uri + "\" width=\"600\" height=\"600\" ></iframe>"
+                                });
+                                labels.push({
+                                    value: i + 1,
+                                    text: rankedList[name][i].entity.uri
+                                })
+                            });
+                            chartData.sort(sortByRank);
+                            var chartBox = dojo.create("div", {
+                                id: "chart-" + name.replace(/\s/, "") + "-box",
+                                "class": "chartbox",
+                                innerHTML: "<h3>" + name + "</h3>"
+                            }, chartsNode);
+                            var chartNode = dojo.create("div", {
+                                id: "chart-" + name.replace(/\s/, ""),
+                                style: "height:300px;width:300px;",
+                                "class": "chart"
+                            }, chartBox);
+                            var chart1 = new dojox.charting.Chart2D(chartNode).setTheme(dojox.charting.themes.PlotKit.blue).addAxis('x', {
+                                fixUpper: 'major',
+                                includeZero: false,
+								font: "normal 12pt Tahoma",
+                                min: 0,
+                                max: 1
+                            }).addAxis('y', {
+                                trailingSymbol: "...",
+                                maxLabelSize: 80,
+                                labels: labels,
+                                min: 0,
+                                max: 10,
+                                font: "normal 12pt Tahoma",
+                                fontColor: "black",
+                                vertical: true,
+                                fixLower: 'major',
+                                fixUpper: 'major'
+                            }).addPlot('default', {
+                                type: 'Bars',
+                                gap: 5,
+                                minBarSize: 10,
+                                maxBarSize: 10
+                            }).addSeries('Visits For February', chartData, {});
+                            var anim4b = new dojox.charting.action2d.Tooltip(chart1, 'default');
+                            var anim4c = new dojox.charting.action2d.Shake(chart1, 'default');
+                            chart1.render();
+                            var legend4 = new dojox.charting.widget.Legend({
+                                chart: chart1
+                            }, 'legend3');
+                            
+                        }
+                        dojo.fadeIn({
+                            node: chartsNode,
+                            duration: 2000
+                        }).play()
+						
+						
+						/**************** TABLE *************************/
+						
+                        tableHTML = "<table><tr><th>Score</th><th>Label</th><th>URI</th></tr>";
+                        for (var name in rankedList) {
+                            dojo.forEach(rankedList[name], function(item, i){
+                                tableHTML += "<tr> <td class=\"score\">" + Math.round(rankedList[name][i].rank * 100) / 100 + "</td><td class=\"label\">" + name + "</td><td class=\"uri\"><a target=\"_blank\" href=\"" + rankedList[name][i].entity.uri + "\">" + rankedList[name][i].entity.uri + "</a></td></tr>";
+                            });
+                        }
+                        tableHTML += "</table>";
+                        
+                        tableNode.innerHTML = tableHTML;
+                        dojo.fadeIn({
+                            node: tableNode,
+                            duration: 2000
+                        }).play()
+                        
+                       /**************** ANNOTATED *************************/
+					  var entities = response.entities
+					  var entityPositions = [];
+					  for (var name in entities) {
+					  	entityPositions.push({name: name, start: entities[name].start, end: entities[name].end});
+					  }
+					  entityPositions.sort(sortByStartPos);
+					  var originText = dijit.byId("text-input").value;
+					  var annotatedText = "";
+					  var lastEnd = 0;
+					  for (var i = 0; i < entityPositions.length;i++){
+					  	ePos = entityPositions[i]
+						// asumes the first element of the rankedList is always the best one (highest rank)
+						annotatedText += originText.substring(lastEnd,ePos.start) + "<a target='_blank' href='" + rankedList[ePos.name][0].entity.uri + "' title='" + rankedList[ePos.name][0].entity.uri + "'>" + originText.substring(ePos.start,ePos.end) + "</a>";
+						lastEnd = ePos.end;
+					  }
+					  annotatedText += originText.substring(lastEnd,originText.length);
+                      dojo.byId("annotated").innerHTML = annotatedText;
+						dojo.fadeIn({
+                            node: annNode,
+                            duration: 2000
+                        }).play()
                         
                         //Dojo recommends that you always return(response); to propagate 
                         //the response to other callback handlers. Otherwise, the error 
@@ -41,7 +154,7 @@
                         return response;
                     },
                     error: function(response, ioArgs){
-                        dojo.byId("result").innerHTML = "An error occurred, with response: " + response;
+                        dojo.byId("info").innerHTML = "An error occurred, with response: " + response;
                         return response;
                     },
                     
@@ -49,31 +162,55 @@
                     //submits that form to the specified URL
                     form: "myForm"
                 });
-            }
+            };
+            dojo.addOnLoad(function(){
+                document.body.appendChild(basicStandby1.domNode);
+            });
         </script>
     </head>
     <body class="claro">
+        <div jsId="basicStandby1" dojoType="dojox.widget.Standby" target="main">
+            <h3>Your request is beeing processed...</h3>
+        </div>
         <div id="appLayout" class="demoLayout" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="design: 'headline'">
-            <div class="centerPanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'center'">
-                <div class="centIn">
-                    <h4>Input Text</h4>
-                    <form id="myForm">
-                        <textarea id="text-input" name="input" dojoType="dijit.form.Textarea" style="width:600px;min-height:150px;">Paris is a town in Kenosha County, Wisconsin, United States that had a  population of 1,473 at the 2000 census.</textarea>
-						<br />
-                        <button dojoType="dijit.form.Button" type="button">
-                            Submit
-                            <script type="dojo/method" event="onClick" args="evt">
-                                // Do something:
-                                getText();
-                            </script>
-                        </button>
-                    </form>
-                    <div id="result">
+            <div id="main" class="centerPanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'center'">
+                <div id="info">
+                </div>
+                <div dojoType="dijit.layout.TabContainer" style="width: 100%; height: 100%;">
+                    <div dojoType="dijit.layout.ContentPane" title="Annotated" selected="true">
+                    	<h3>Text annotated with most fitting entities found on DBpedia</h3>
+                        <div id="annotated" style="opacity: 0; background-color: #E7EEF6; padding: 5px;">
+                        </div>                    	
                     </div>
+                    <div dojoType="dijit.layout.ContentPane" title="Entities">
+                    	<h3>List of all possible entities found on DBpedia</h3>
+                        <div id="table">
+                        </div>
+                    </div>
+					
+                    <div dojoType="dijit.layout.ContentPane" title="Charts Ranking" >
+                    	<h3>Score distributions of the best 10 entities found on DBpedia</h3>
+                        <div id="charts">
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="edgePanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'top'">
                 <h1>ISSLOD Entity Disambiguation "Student Work Project"</h1>
+            </div>
+            <div id="leftCol" style="width:250px" class="edgePanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'left', splitter: true">
+                <form id="myForm">
+                    <button dojoType="dijit.form.Button" type="button" style="margin:5px;">
+                        ::: annotate :::
+                        <script type="dojo/method" event="onClick" args="evt">
+                            // Do something:
+                            getText();
+                        </script>
+                    </button>
+                    <textarea id="text-input" name="input" dojoType="dijit.form.Textarea" style="width:200px;min-height:300px;">Paris is a town in Kenosha County, Wisconsin, United States that had a  population of 1,473 at the 2000 census.
+                    </textarea>
+                </form>
             </div>
         </div>
     </body>
