@@ -1,7 +1,10 @@
 * {
     outline: none !important;
 }
-
+.chartbox {
+	float:left;
+	margin:10px;
+}
 body {
     margin: 0;
     padding: 2em;
@@ -61,7 +64,6 @@ td.uri {
 th {
     text-align: left;
 }
-
 tr:hover {
     background: #eee;
 }
