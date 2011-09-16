@@ -21,9 +21,10 @@
             function sortByRank(a, b){
                 return b.y - a.y;
             }
-			function sortByStartPos (a,b){
-				return a.start - b.start;
-			}
+            
+            function sortByStartPos(a, b){
+                return a.start - b.start;
+            }
             
             function getText(){
                 basicStandby1.show();
@@ -31,11 +32,11 @@
                 
                 chartsNode = dojo.byId("charts");
                 tableNode = dojo.byId("table");
-				annNode = dojo.byId("annotated");
+                annNode = dojo.byId("main-output");
                 chartsNode.innerHTML = "";
                 dojo.style(tableNode, "opacity", "0");
                 dojo.style(chartsNode, "opacity", "0");
-				dojo.style(annNode, "opacity", "0");
+                dojo.style(annNode, "opacity", "0");
                 //The form data is sent to the given URL using a POST method, 
                 //rather than a GET by using the dojo.xhrPost function.
                 dojo.xhrGet({
@@ -44,10 +45,10 @@
                     load: function(response, ioArgs){
                         basicStandby1.hide();
                         console.dir(response);
-						var rankedList = response.rankedList; 
+                        var rankedList = response.rankedList;
                         
-					    /********************** CHARTS ********************************************/
-						for (var name in rankedList) {
+                        /********************** CHARTS ********************************************/
+                        for (var name in rankedList) {
                             var chartData = [];
                             var labels = [];
                             dojo.forEach(rankedList[name], function(item, i){
@@ -75,7 +76,7 @@
                             var chart1 = new dojox.charting.Chart2D(chartNode).setTheme(dojox.charting.themes.PlotKit.blue).addAxis('x', {
                                 fixUpper: 'major',
                                 includeZero: false,
-								font: "normal 12pt Tahoma",
+                                font: "normal 12pt Tahoma",
                                 min: 0,
                                 max: 1
                             }).addAxis('y', {
@@ -107,10 +108,10 @@
                             node: chartsNode,
                             duration: 2000
                         }).play()
-						
-						
-						/**************** TABLE *************************/
-						
+                        
+                        
+                        /**************** TABLE *************************/
+                        
                         tableHTML = "<table><tr><th>Score</th><th>Label</th><th>URI</th></tr>";
                         for (var name in rankedList) {
                             dojo.forEach(rankedList[name], function(item, i){
@@ -125,29 +126,48 @@
                             duration: 2000
                         }).play()
                         
-                       /**************** ANNOTATED *************************/
-					  var entities = response.entities
-					  var entityPositions = [];
-					  for (var name in entities) {
-					  	entityPositions.push({name: name, start: entities[name].start, end: entities[name].end});
-					  }
-					  entityPositions.sort(sortByStartPos);
-					  var originText = dijit.byId("text-input").value;
-					  var annotatedText = "";
-					  var lastEnd = 0;
-					  for (var i = 0; i < entityPositions.length;i++){
-					  	ePos = entityPositions[i]
-						// asumes the first element of the rankedList is always the best one (highest rank)
-						annotatedText += originText.substring(lastEnd,ePos.start) + "<a target='_blank' href='" + rankedList[ePos.name][0].entity.uri + "' title='" + rankedList[ePos.name][0].entity.uri + "'>" + originText.substring(ePos.start,ePos.end) + "</a>";
-						lastEnd = ePos.end;
-					  }
-					  annotatedText += originText.substring(lastEnd,originText.length);
-                      dojo.byId("annotated").innerHTML = annotatedText;
-						dojo.fadeIn({
+                        /**************** ANNOTATED *************************/
+                        var entities = response.entities
+                        var entityPositions = [];
+                        for (var name in entities) {
+                            entityPositions.push({
+                                name: name,
+                                start: entities[name].start,
+                                end: entities[name].end
+                            });
+                        }
+                        entityPositions.sort(sortByStartPos);
+                        var originText = dijit.byId("text-input").value;
+                        var annotatedText = "";
+                        var lastEnd = 0;
+                        for (var i = 0; i < entityPositions.length; i++) {
+                            ePos = entityPositions[i]
+                            // asumes the first element of the rankedList is always the best one (highest rank)
+                            annotatedText += originText.substring(lastEnd, ePos.start) + "<a target='_blank' href='" + rankedList[ePos.name][0].entity.uri + "' title='" + rankedList[ePos.name][0].entity.uri + "'>" + originText.substring(ePos.start, ePos.end) + "</a>";
+                            lastEnd = ePos.end;
+                        }
+                        annotatedText += originText.substring(lastEnd, originText.length);
+                        dojo.byId("annotated").innerHTML = annotatedText;
+                        dojo.fadeIn({
                             node: annNode,
                             duration: 2000
                         }).play()
                         
+                        var uriCount = 0
+                        for (var name in rankedList) {
+                            uriCount += rankedList[name].length;
+                        }
+                        var pieChartData = [];
+                        for (var name in rankedList) {
+                            pieChartData.push({
+                                y: rankedList[name].length,
+                                text: name,
+                                stroke: "black",
+                                tooltip: name + ":" + rankedList[name].length + " URIs"
+                            });
+                            rankedList[name].length;
+                        }
+                        pieChart(pieChartData)
                         //Dojo recommends that you always return(response); to propagate 
                         //the response to other callback handlers. Otherwise, the error 
                         //callbacks may be called in the success case.
@@ -163,6 +183,26 @@
                     form: "myForm"
                 });
             };
+            function pieChart(pieChartData){
+                dojo.byId("chartTwo").innerHTML = "";
+                var dc = dojox.charting;
+                var chartTwo = new dc.Chart2D("chartTwo");
+                chartTwo.setTheme(dojox.charting.themes.PlotKit.blue).addPlot("default", {
+                    type: "Pie",
+                    font: "normal normal 11pt Tahoma",
+                    fontColor: "black",
+                    labelOffset: -30,
+                    radius: 80
+                }).addSeries("Series A", pieChartData);
+                var anim_a = new dc.action2d.MoveSlice(chartTwo, "default");
+                var anim_b = new dc.action2d.Highlight(chartTwo, "default");
+                var anim_c = new dc.action2d.Tooltip(chartTwo, "default");
+                chartTwo.render();
+                var legendTwo = new dojox.charting.widget.Legend({
+                    chart: chartTwo
+                }, "legendTwo");
+            }
+            
             dojo.addOnLoad(function(){
                 document.body.appendChild(basicStandby1.domNode);
             });
@@ -178,22 +218,31 @@
                 </div>
                 <div dojoType="dijit.layout.TabContainer" style="width: 100%; height: 100%;">
                     <div dojoType="dijit.layout.ContentPane" title="Annotated" selected="true">
-                    	<h3>Text annotated with most fitting entities (URIs) found on DBpedia</h3>
-                        <div id="annotated" style="opacity: 0; background-color: #E7EEF6; padding: 5px;">
-                        </div>                    	
+                        <div id="main-output" style="opacity: 0;">
+                            <div style="float:left;margin-right:20px; width:400px;">
+                                <h3>Text annotated with most fitting entities (URIs) found on DBpedia</h3>
+                                <div id="annotated" style="width:400px;  background-color: #E7EEF6; padding: 5px;">
+                                </div>
+                            </div>
+                            <div style="float:left;width:300px;">
+                                <h3>Distribution of URIs found for recognized enttites in your text:</h3>
+                                <div id="chartTwo" style="width: 300px; height: 300px;">
+                                </div>
+                                <div id="legendTwo">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div dojoType="dijit.layout.ContentPane" title="Entities">
-                    	<h3>List of all possible entities (URIs) found on DBpedia</h3>
+                        <h3>List of all possible entities (URIs) found on DBpedia</h3>
                         <div id="table">
                         </div>
                     </div>
-					
-                    <div dojoType="dijit.layout.ContentPane" title="Charts Ranking" >
-                    	<h3>Score distributions of the 10 best entites (URIs) found on DBpedia for each recognized entity in the text</h3>
+                    <div dojoType="dijit.layout.ContentPane" title="Charts Ranking">
+                        <h3>Score distributions of the 10 best entites (URIs) found on DBpedia for each recognized entity in the text</h3>
                         <div id="charts">
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="edgePanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region: 'top'">
