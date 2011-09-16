@@ -178,18 +178,18 @@
                 </div>
                 <div dojoType="dijit.layout.TabContainer" style="width: 100%; height: 100%;">
                     <div dojoType="dijit.layout.ContentPane" title="Annotated" selected="true">
-                    	<h3>Text annotated with most fitting entities found on DBpedia</h3>
+                    	<h3>Text annotated with most fitting entities (URIs) found on DBpedia</h3>
                         <div id="annotated" style="opacity: 0; background-color: #E7EEF6; padding: 5px;">
                         </div>                    	
                     </div>
                     <div dojoType="dijit.layout.ContentPane" title="Entities">
-                    	<h3>List of all possible entities found on DBpedia</h3>
+                    	<h3>List of all possible entities (URIs) found on DBpedia</h3>
                         <div id="table">
                         </div>
                     </div>
 					
                     <div dojoType="dijit.layout.ContentPane" title="Charts Ranking" >
-                    	<h3>Score distributions of the best 10 entities found on DBpedia</h3>
+                    	<h3>Score distributions of the 10 best entites (URIs) found on DBpedia for each recognized entity in the text</h3>
                         <div id="charts">
                         </div>
                     </div>
@@ -208,7 +208,7 @@
                             getText();
                         </script>
                     </button>
-                    <textarea id="text-input" name="input" dojoType="dijit.form.Textarea" style="width:200px;min-height:300px;">Paris is a town in Kenosha County, Wisconsin, United States that had a  population of 1,473 at the 2000 census.
+                    <textarea id="text-input" name="input" dojoType="dijit.form.Textarea" style="width:250px;min-height:300px;">Paris is a town in Kenosha County, Wisconsin, United States that had a  population of 1,473 at the 2000 census.
                     </textarea>
                 </form>
             </div>
