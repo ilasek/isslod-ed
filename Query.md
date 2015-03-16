@@ -1,0 +1,1 @@
+SELECT DISTINCT ?uri ?label ?type ?description WHERE { ?uri rdfs:label "Paris"@en. ?uri rdfs:label ?label. ?uri dbpedia-owl:abstract ?description. FILTER(lang(?description) = "en"). OPTIONAL {?uri rdf:type ?type} }
